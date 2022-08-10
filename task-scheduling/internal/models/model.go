@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/congziqi77/task-scheduling/internal/modules/app"
+	"github.com/congziqi77/task-scheduling/global"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -21,11 +21,11 @@ var DB *gorm.DB
 //创建数据库实例
 func NewDBEngine() *gorm.DB {
 	dns := fmt.Sprintf("user=%s password=%s host=%s port=%d dbname=%s sslmode=disable TimeZone=Asia/Shanghai",
-		app.DbSetting.User,
-		app.DbSetting.Password,
-		app.DbSetting.Host,
-		app.DbSetting.Port,
-		app.DbSetting.Database)
+		global.DbSetting.User,
+		global.DbSetting.Password,
+		global.DbSetting.Host,
+		global.DbSetting.Port,
+		global.DbSetting.Database)
 	db, err := gorm.Open(postgres.Open(dns), &gorm.Config{})
 	if err != nil {
 		log.Fatal("database create fail", err)
@@ -34,8 +34,8 @@ func NewDBEngine() *gorm.DB {
 	if err != nil {
 		log.Fatal("database create fail", err)
 	}
-	sqlDB.SetMaxOpenConns(app.DbSetting.MaxOpenConns)
-	sqlDB.SetMaxIdleConns(app.DbSetting.MaxIdleConns)
+	sqlDB.SetMaxOpenConns(global.DbSetting.MaxOpenConns)
+	sqlDB.SetMaxIdleConns(global.DbSetting.MaxIdleConns)
 	sqlDB.SetConnMaxLifetime(DB_Max_LIFT_TIME)
 
 	//ping实例

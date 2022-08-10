@@ -3,7 +3,7 @@ server:
   HttpPort: 8081
   ReadTimeout: 60
   WriteTimeout: 60
-Database:
+database:
   DBType: postgres
   Username: username  # 填写你的数据库账号
   Password: 123456  # 填写你的数据库密码

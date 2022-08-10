@@ -1,9 +1,10 @@
 package setting
 
 import (
-	"log"
 	"time"
 
+	"github.com/allegro/bigcache/v3"
+	"github.com/congziqi77/task-scheduling/internal/modules/logger"
 	"github.com/spf13/viper"
 )
 
@@ -13,15 +14,15 @@ type Setting struct {
 
 //数据库配置
 type DbSettings struct {
-	Host         string
-	Port         int
-	User         string
-	Password     string
-	Database     string
-	Prefix       string
-	Charset      string
-	MaxIdleConns int
-	MaxOpenConns int
+	Host         string `form:"dbHost" binding:"required,max=50" json:"host"`
+	Port         int    `form:"dbPort" binding:"required,gte=1,lte=65535" json:"port"`
+	User         string `form:"dbUsername" binding:"required,max=50" json:"user"`
+	Password     string `form:"dbPassword" binding:"required,max=50" json:"password"`
+	Database     string `form:"dbName" binding:"required,max=30" json:"database"`
+	Prefix       string `form:"dbTablePrefix" binding:"required,max=20" json:"prefix"`
+	Charset      string `json:"charset"`
+	MaxIdleConns int    `json:"max_idle_conns"`
+	MaxOpenConns int    `json:"max_open_conns"`
 }
 
 type ServerSettingS struct {
@@ -31,6 +32,8 @@ type ServerSettingS struct {
 	WriteTimeout time.Duration
 }
 
+type CacheSetting bigcache.Config
+
 func NewSetting() *Setting {
 	vp := viper.New()
 	vp.AddConfigPath("configs/")
@@ -38,7 +41,7 @@ func NewSetting() *Setting {
 	vp.SetConfigType("yaml")
 	err := vp.ReadInConfig()
 	if err != nil {
-		log.Fatalf("read config error", err)
+		logger.NewLogger.Fatal().Msgf("read config error:{}", err)
 	}
 	return &Setting{V: vp}
 }

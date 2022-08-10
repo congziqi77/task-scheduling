@@ -1,32 +1,27 @@
 package install
 
 import (
-	"github.com/congziqi77/task-scheduling/internal/modules/app"
+	"net/http"
+
+	"github.com/congziqi77/task-scheduling/global"
+	"github.com/congziqi77/task-scheduling/internal/models"
 	"github.com/gin-gonic/gin"
 )
-
-type InstallForm struct {
-	DBHost        string `binding:"Required;MaxSize(50)"`
-	DBPort        int    `binding:"Required;Range(1,65535)"`
-	DBUsername    string `binding:"Required;MaxSize(50)"`
-	DBPassword    string `binding:"Required;MaxSize(50)"`
-	DBName        string `binding:"Required;MaxSize(30)"`
-	DBTablePrefix string `binding:"Required;MaxSize(20)"`
-}
 
 const (
 	MAX_IDLE_Conns int = 10
 	MAX_OPEN_CONNS int = 100
 )
 
-//绑定DBSetting
-func DbBind(ctx *gin.Context, form InstallForm) {
-	app.DbSetting.Host = form.DBHost
-	app.DbSetting.Port = form.DBPort
-	app.DbSetting.User = form.DBUsername
-	app.DbSetting.Password = form.DBPassword
-	app.DbSetting.Database = form.DBName
-	app.DbSetting.Prefix = form.DBTablePrefix
-	app.DbSetting.MaxIdleConns = MAX_IDLE_Conns
-	app.DbSetting.MaxOpenConns = MAX_OPEN_CONNS
+//绑定DBSetting并开启DB
+func DbBind(ctx *gin.Context) {
+	if err := ctx.ShouldBind(&global.DbSetting); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	global.DbSetting.MaxIdleConns = MAX_IDLE_Conns
+	global.DbSetting.MaxOpenConns = MAX_OPEN_CONNS
+	models.DB = models.NewDBEngine()
+	ctx.JSON(http.StatusOK, gin.H{"status": "you are logged in"})
+
 }
