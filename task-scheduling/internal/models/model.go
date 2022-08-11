@@ -3,10 +3,10 @@ package models
 import (
 	"database/sql"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/congziqi77/task-scheduling/global"
+	"github.com/congziqi77/task-scheduling/internal/modules/logger"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -19,7 +19,7 @@ const (
 var DB *gorm.DB
 
 //创建数据库实例
-func NewDBEngine() *gorm.DB {
+func NewDBEngine() (*gorm.DB, error) {
 	dns := fmt.Sprintf("user=%s password=%s host=%s port=%d dbname=%s sslmode=disable TimeZone=Asia/Shanghai",
 		global.DbSetting.User,
 		global.DbSetting.Password,
@@ -28,11 +28,11 @@ func NewDBEngine() *gorm.DB {
 		global.DbSetting.Database)
 	db, err := gorm.Open(postgres.Open(dns), &gorm.Config{})
 	if err != nil {
-		log.Fatal("database create fail", err)
+		return nil, err
 	}
 	sqlDB, err := db.DB()
 	if err != nil {
-		log.Fatal("database create fail", err)
+		return nil, err
 	}
 	sqlDB.SetMaxOpenConns(global.DbSetting.MaxOpenConns)
 	sqlDB.SetMaxIdleConns(global.DbSetting.MaxIdleConns)
@@ -40,7 +40,7 @@ func NewDBEngine() *gorm.DB {
 
 	//ping实例
 	go keepPing(sqlDB)
-	return db
+	return db, nil
 }
 
 func keepPing(sqlDB *sql.DB) {
@@ -50,7 +50,7 @@ func keepPing(sqlDB *sql.DB) {
 		case <-t:
 			err := sqlDB.Ping()
 			if err != nil {
-				log.Printf("database ping: %s", err)
+				logger.Printf("database ping: %s", err)
 			}
 		}
 	}

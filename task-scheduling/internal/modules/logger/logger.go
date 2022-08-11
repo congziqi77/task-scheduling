@@ -1,25 +1,15 @@
 package logger
 
 import (
-	"context"
 	"io"
 
 	"github.com/rs/zerolog"
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
-type Logger struct {
-	logger *zerolog.Logger
-}
+var logger zerolog.Logger
 
-var (
-	NewLogger *Logger
-)
-
-//hook
-type SeverityHook struct{}
-
-func Loginit(isDebug bool) *Logger {
+func Loginit(isDebug bool) {
 	logLevel := zerolog.InfoLevel
 	if isDebug {
 		logLevel = zerolog.DebugLevel
@@ -33,105 +23,94 @@ func Loginit(isDebug bool) *Logger {
 		MaxAge:     30,                 // Max number of days to keep the files
 		Compress:   true,               // Whether to compress log files using gzip
 	})
-	logger := s.With().Caller().Timestamp().Logger()
-	return &Logger{logger: &logger}
-}
-
-func (hook SeverityHook) Run(e *zerolog.Event, level zerolog.Level, msg string) {
-
+	logger = s.With().Caller().Timestamp().Logger()
 }
 
 // Output duplicates the global logger and sets w as its output.
-func (l *Logger) Output(w io.Writer) zerolog.Logger {
-	return l.logger.Output(w)
+func Output(w io.Writer) zerolog.Logger {
+	return logger.Output(w)
 }
 
 // With creates a child logger with the field added to its context.
-func (l *Logger) With() zerolog.Context {
-	return l.logger.With()
+func With() zerolog.Context {
+	return logger.With()
 }
 
 // Level creates a child logger with the minimum accepted level set to level.
-func (l *Logger) Level(level zerolog.Level) zerolog.Logger {
-	return l.logger.Level(level)
+func Level(level zerolog.Level) zerolog.Logger {
+	return logger.Level(level)
 }
 
 // Sample returns a logger with the s sampler.
-func (l *Logger) Sample(s zerolog.Sampler) zerolog.Logger {
-	return l.logger.Sample(s)
+func Sample(s zerolog.Sampler) zerolog.Logger {
+	return logger.Sample(s)
 }
 
 // Hook returns a logger with the h Hook.
-func (l *Logger) Hook(h zerolog.Hook) zerolog.Logger {
-	return l.logger.Hook(h)
+func Hook(h zerolog.Hook) zerolog.Logger {
+	return logger.Hook(h)
 }
 
 // Debug starts a new message with debug level.
 // You must call Msg on the returned event in order to send the event.
-func (l *Logger) Debug() *zerolog.Event {
-	return l.logger.Debug()
+func Debug() *zerolog.Event {
+	return logger.Debug()
 }
 
 // Info starts a new message with info level.
 // You must call Msg on the returned event in order to send the event.
-func (l *Logger) Info() *zerolog.Event {
-	return l.logger.Info()
+func Info() *zerolog.Event {
+	return logger.Info()
 }
 
 // Warn starts a new message with warn level.
 // You must call Msg on the returned event in order to send the event.
-func (l *Logger) Warn() *zerolog.Event {
-	return l.logger.Warn()
+func Warn() *zerolog.Event {
+	return logger.Warn()
 }
 
 // Error starts a new message with error level.
 //
 // You must call Msg on the returned event in order to send the event.
-func (l *Logger) Error() *zerolog.Event {
-	return l.logger.Error()
+func Error() *zerolog.Event {
+	return logger.Error()
 }
 
 // Fatal starts a new message with fatal level. The os.Exit(1) function
 // is called by the Msg method.
 // You must call Msg on the returned event in order to send the event.
-func (l *Logger) Fatal() *zerolog.Event {
-	return l.logger.Fatal()
+func Fatal() *zerolog.Event {
+	return logger.Fatal()
 }
 
 // Panic starts a new message with panic level. The message is also sent
 // to the panic function.
 // You must call Msg on the returned event in order to send the event.
-func (l *Logger) Panic() *zerolog.Event {
-	return l.logger.Panic()
+func Panic() *zerolog.Event {
+	return logger.Panic()
 }
 
 // WithLevel starts a new message with level.
 // You must call Msg on the returned event in order to send the event.
-func (l *Logger) WithLevel(level zerolog.Level) *zerolog.Event {
-	return l.logger.WithLevel(level)
+func WithLevel(level zerolog.Level) *zerolog.Event {
+	return logger.WithLevel(level)
 }
 
 // Log starts a new message with no level. Setting zerolog.GlobalLevel to
 // zerolog.Disabled will still disable events produced by this method.
 // You must call Msg on the returned event in order to send the event.
-func (l *Logger) Log() *zerolog.Event {
-	return l.logger.Log()
+func Log() *zerolog.Event {
+	return logger.Log()
 }
 
 // Print sends a log event using debug level and no extra field.
 // Arguments are handled in the manner of fmt.Print.
-func (l *Logger) Print(v ...interface{}) {
-	l.logger.Print(v...)
+func Print(v ...interface{}) {
+	logger.Print(v...)
 }
 
 // Printf sends a log event using debug level and no extra field.
 // Arguments are handled in the manner of fmt.Printf.
-func (l *Logger) Printf(format string, v ...interface{}) {
-	l.logger.Printf(format, v...)
-}
-
-// Ctx returns the Logger associated with the ctx. If no logger
-// is associated, a disabled logger is returned.
-func (l *Logger) Ctx(ctx context.Context) *Logger {
-	return &Logger{logger: zerolog.Ctx(ctx)}
+func Printf(format string, v ...interface{}) {
+	logger.Printf(format, v...)
 }

@@ -8,7 +8,7 @@ import (
 func GetID() string {
 	node, err := snowflake.NewNode(1)
 	if err != nil {
-		logger.NewLogger.Fatal().Msgf("make ID error", err)
+		logger.Error().Str("err", err.Error()).Msg("make ID error")
 		return ""
 	}
 	id := node.Generate()

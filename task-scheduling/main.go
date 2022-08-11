@@ -1,11 +1,11 @@
 package main
 
 import (
-	"log"
 	"net/http"
 	"time"
 
 	"github.com/congziqi77/task-scheduling/global"
+	"github.com/congziqi77/task-scheduling/internal/modules/cache"
 	"github.com/congziqi77/task-scheduling/internal/modules/logger"
 	"github.com/congziqi77/task-scheduling/internal/routers"
 	"github.com/congziqi77/task-scheduling/internal/setting"
@@ -15,12 +15,17 @@ import (
 
 func init() {
 	//初始化log
-	logger.NewLogger = logger.Loginit(true)
+	logger.Loginit(true)
 	err := setupSetting()
 	if err != nil {
-		log.Fatalf("init error : %v", err)
+		logger.Error().Str("err", err.Error()).Msg("init set error : %v")
+		panic(err)
 	}
-
+	err = cache.CacheInit()
+	if err != nil {
+		logger.Error().Str("err", err.Error()).Msg("init cache error : %v")
+		panic(err)
+	}
 }
 
 func main() {
@@ -38,20 +43,21 @@ func main() {
 }
 
 func setupSetting() error {
-	set := setting.NewSetting()
-	err := set.ReadSection("server", &global.ServerSetting)
+	set, err := setting.NewSetting()
 	if err != nil {
-		logger.NewLogger.Fatal().Msgf("read yaml error :", err)
+		return err
+	}
+	err = set.ReadSection("server", &global.ServerSetting)
+	if err != nil {
+		logger.Debug().Str("err", err.Error()).Msg("read yaml error")
 		return err
 	}
 	global.ServerSetting.ReadTimeout *= time.Second
 	global.ServerSetting.WriteTimeout *= time.Second
 	err = set.ReadSection("cache", &global.CacheSetting)
 	if err != nil {
-		logger.NewLogger.Fatal().Msgf("read yaml error :", err)
+		logger.Error().Str("err", err.Error()).Msg("read yaml error :")
 		return err
 	}
 	return nil
 }
-
-

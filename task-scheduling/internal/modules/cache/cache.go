@@ -5,24 +5,20 @@ import (
 
 	"github.com/allegro/bigcache/v3"
 	"github.com/congziqi77/task-scheduling/global"
-	"github.com/congziqi77/task-scheduling/internal/modules/logger"
 )
 
-func CacheInit() {
+func CacheInit() error {
 	config := global.CacheSetting
 	var cache *bigcache.BigCache
-	var initErr error
-	logger.NewLogger.Info().Msgf("cache config is: %v", config)
+	var err error
 	if config == nil {
-		cache, initErr = bigcache.NewBigCache(bigcache.DefaultConfig(10 * time.Minute))
+		cache, err = bigcache.NewBigCache(bigcache.DefaultConfig(1 * time.Hour))
 	} else {
-		cache, initErr = bigcache.NewBigCache(bigcache.Config(*config))
+		cache, err = bigcache.NewBigCache(bigcache.Config(*config))
 	}
-	if initErr != nil {
-		logger.NewLogger.Fatal().Msgf("bigCache init error", initErr)
+	if err != nil {
+		return err
 	}
 	global.BigCache = cache
+	return nil
 }
-
-//todo 公共创建缓存的方法 和 json -》map-》struct
-

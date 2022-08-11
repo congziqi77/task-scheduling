@@ -1,0 +1,23 @@
+{"level":"info","caller":"/Users/congziqi/Documents/goWork/task-scheduling/task-scheduling/internal/modules/cache/cache.go:15","time":"2022-08-11T14:12:49+08:00","message":"cache config is: <nil>"}
+{"level":"info","caller":"/Users/congziqi/Documents/goWork/task-scheduling/task-scheduling/internal/modules/cache/cache.go:15","time":"2022-08-11T14:17:04+08:00","message":"cache config is: <nil>"}
+{"level":"info","caller":"/Users/congziqi/Documents/goWork/task-scheduling/task-scheduling/internal/modules/cache/cache.go:15","time":"2022-08-11T14:18:12+08:00","message":"cache config is: <nil>"}
+{"level":"info","caller":"/Users/congziqi/Documents/goWork/task-scheduling/task-scheduling/internal/modules/cache/cache.go:15","time":"2022-08-11T14:18:33+08:00","message":"cache config is: <nil>"}
+{"level":"info","caller":"/Users/congziqi/Documents/goWork/task-scheduling/task-scheduling/internal/modules/cache/cache.go:15","time":"2022-08-11T15:00:25+08:00","message":"cache config is: <nil>"}
+{"level":"debug","err":"json: cannot unmarshal string into Go struct field Topic.type of type int","caller":"/Users/congziqi/Documents/goWork/task-scheduling/task-scheduling/route/task/task.go:17","time":"2022-08-11T15:09:10+08:00","message":"bind err"}
+{"level":"debug","err":"Key: 'Topic.Type' Error:Field validation for 'Type' failed on the 'required' tag","caller":"/Users/congziqi/Documents/goWork/task-scheduling/task-scheduling/route/task/task.go:17","time":"2022-08-11T15:10:23+08:00","message":"bind err"}
+{"level":"error","err":"Entry not found","caller":"/Users/congziqi/Documents/goWork/task-scheduling/task-scheduling/route/task/task.go:24","time":"2022-08-11T15:11:40+08:00","message":"topic save cache err"}
+{"level":"debug","cache":{},"caller":"/Users/congziqi/Documents/goWork/task-scheduling/task-scheduling/main.go:25","time":"2022-08-11T15:17:52+08:00","message":"cache is"}
+{"level":"debug","cache":{},"caller":"/Users/congziqi/Documents/goWork/task-scheduling/task-scheduling/internal/modules/cache/cache.go:17","time":"2022-08-11T15:19:20+08:00","message":"cache is"}
+{"level":"debug","caller":"/Users/congziqi/Documents/goWork/task-scheduling/task-scheduling/internal/modules/logger/logger.go:109","time":"2022-08-11T15:29:38+08:00","message":"config null"}
+{"level":"debug","cache":{},"caller":"/Users/congziqi/Documents/goWork/task-scheduling/task-scheduling/internal/modules/cache/cache.go:20","time":"2022-08-11T15:29:38+08:00","message":"cache is"}
+{"level":"error","err":"Entry not found","caller":"/Users/congziqi/Documents/goWork/task-scheduling/task-scheduling/internal/models/topic.go:25","time":"2022-08-11T15:29:51+08:00","message":"topic save cache err"}
+
+
+{"level":"debug","cache":{},"caller":"/Users/congziqi/Documents/goWork/task-scheduling/task-scheduling/internal/modules/cache/cache.go:17","time":"2022-08-11T15:34:52+08:00","message":"cache is"}
+{"level":"error","err":"Entry not found","caller":"/Users/congziqi/Documents/goWork/task-scheduling/task-scheduling/internal/models/topic.go:25","time":"2022-08-11T15:35:05+08:00","message":"topic save cache err"}
+{"level":"debug","cache":{},"caller":"/Users/congziqi/Documents/goWork/task-scheduling/task-scheduling/internal/modules/cache/cache.go:17","time":"2022-08-11T15:37:12+08:00","message":"cache is"}
+{"level":"debug","cache":{},"caller":"/Users/congziqi/Documents/goWork/task-scheduling/task-scheduling/internal/modules/cache/cache.go:17","time":"2022-08-11T15:41:06+08:00","message":"cache is"}
+{"level":"debug","topic":{"id":"1557633210064572416","topic_name":"test-0811","desc":"传输测试","type":0,"tasks":null},"caller":"/Users/congziqi/Documents/goWork/task-scheduling/task-scheduling/internal/models/topic.go:28","time":"2022-08-11T15:41:11+08:00","message":"topic is"}
+{"level":"debug","cache":{},"caller":"/Users/congziqi/Documents/goWork/task-scheduling/task-scheduling/internal/modules/cache/cache.go:17","time":"2022-08-11T15:46:32+08:00","message":"cache is"}
+{"level":"debug","topic":{"id":"1557634573502779392","topic_name":"test-0811","desc":"传输测试","type":0,"tasks":null},"caller":"/Users/congziqi/Documents/goWork/task-scheduling/task-scheduling/internal/models/topic.go:28","time":"2022-08-11T15:46:36+08:00","message":"topic is"}
+{"level":"debug","topic":{"id":"1557634780768505856","topic_name":"test","desc":"传输测试","type":0,"tasks":null},"caller":"/Users/congziqi/Documents/goWork/task-scheduling/task-scheduling/internal/models/topic.go:28","time":"2022-08-11T15:47:25+08:00","message":"topic is"}

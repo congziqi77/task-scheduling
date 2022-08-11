@@ -11,7 +11,7 @@ require (
 	gorm.io/gorm v1.23.8
 )
 
-require github.com/bwmarrin/snowflake v0.3.0 // indirect
+require github.com/bwmarrin/snowflake v0.3.0
 
 require (
 	github.com/allegro/bigcache/v3 v3.0.2

@@ -34,22 +34,24 @@ type ServerSettingS struct {
 
 type CacheSetting bigcache.Config
 
-func NewSetting() *Setting {
+func NewSetting() (*Setting, error) {
 	vp := viper.New()
 	vp.AddConfigPath("configs/")
 	vp.SetConfigName("configs")
 	vp.SetConfigType("yaml")
 	err := vp.ReadInConfig()
 	if err != nil {
-		logger.NewLogger.Fatal().Msgf("read config error:{}", err)
+		logger.Error().Str("err", err.Error()).Msg("read config error:{}")
+		return nil, err
 	}
-	return &Setting{V: vp}
+	return &Setting{V: vp}, nil
 }
 
 //采用单个key并将其解组为struct
 func (s *Setting) ReadSection(k string, v interface{}) error {
 	err := s.V.UnmarshalKey(k, v)
 	if err != nil {
+		logger.Error().Str("err", err.Error()).Msg("json err")
 		return err
 	}
 	return nil
