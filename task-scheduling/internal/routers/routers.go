@@ -14,10 +14,14 @@ func NewRouter() *gin.Engine {
 	{
 		apiV1.POST("/conndb", install.DbBind)
 	}
-	apiV2 := r.Group("/task")
+	apiV2 := r.Group("/task/topic")
 	{
-		apiV2.POST("/topicCreate", task.TopicCreate)
-		apiV2.GET("/topicList", task.TopicList)
+		apiV2.POST("/create", task.TopicCreate)
+		apiV2.GET("/list", task.TopicList)
+	}
+	apiV3 := r.Group("/task")
+	{
+		apiV3.POST("/create", task.TaskCreate)
 	}
 	return r
 }

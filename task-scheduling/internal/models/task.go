@@ -1,9 +1,15 @@
 package models
 
+type Tasks struct {
+	TaskList []Task `json:"task_list"`
+}
+
 //任务
 type Task struct {
-	ID       int         `json:"id,omitempty"`
-	Comment  interface{} `json:"comment,omitempty"`
-	Parent   string      `json:"parent,omitempty"`   //依赖任务id
-	Children string      `json:"children,omitempty"` //被依赖任务id
+	ID        string         `json:"id"`
+	TaskName  string      `json:"task_name"`
+	Comment   interface{} `json:"comment"`
+	Parent    string      `json:"parent"`   //依赖任务id
+	Children  string      `json:"children"` //被依赖任务id
+	TopicName string      `json:"topic_name"`
 }
