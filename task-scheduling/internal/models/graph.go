@@ -1,6 +1,8 @@
 package models
 
-import "errors"
+import (
+	"errors"
+)
 
 /*
 	通过依赖关系构成图并进行解析二维数组
@@ -23,7 +25,7 @@ type Graph struct {
 }
 
 //初始化
-func New() *Graph {
+func GraphNew() *Graph {
 	return &Graph{
 		nodes:         make(nodeset),
 		dependencyP2C: make(depmap),

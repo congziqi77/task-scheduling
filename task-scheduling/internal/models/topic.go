@@ -5,6 +5,7 @@ import (
 
 	"github.com/congziqi77/task-scheduling/global"
 	"github.com/congziqi77/task-scheduling/internal/modules/logger"
+	"github.com/congziqi77/task-scheduling/pkg"
 )
 
 type Topic struct {
@@ -21,6 +22,7 @@ const (
 
 //保存topic到cache中
 func (topic *Topic) SaveTopic2Cache() error {
+	topic.ID = pkg.GetID()
 	mapTopic, err := GetTopicMapFromCache()
 	if err != nil {
 		return err
@@ -34,7 +36,6 @@ func (topic *Topic) SaveTopic2Cache() error {
 	return nil
 }
 
-//todo 删除cache中的topic request封装
 //任务执行完删除对应topic
 func delTopicFromCache(key string) error {
 	b, _ := global.BigCache.Get(TopicKey)
