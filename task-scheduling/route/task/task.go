@@ -54,3 +54,5 @@ func TaskCreate(ctx *gin.Context) {
 	}
 	req.Success(ctx, "success")
 }
+
+//todo 增加查询依赖的接口 如果返回err或者出现没有值的情况那么重新执行同步接口

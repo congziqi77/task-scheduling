@@ -52,6 +52,10 @@ func (g *Graph) DependOn(child, parent string) error {
 	return nil
 }
 
+func (g *Graph) addNilParents(node string) {
+	g.nodes[node] = struct{}{}
+}
+
 //没有需要依赖的 C2P中没有的元素
 func (g *Graph) Leaves() []string {
 	leaves := []string{}

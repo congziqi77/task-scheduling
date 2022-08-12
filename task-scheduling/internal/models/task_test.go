@@ -46,25 +46,32 @@ func Test_makeGraphResAsync(t *testing.T) {
 				TopicName: "test1",
 			},
 			{
+				ID:        "05",
+				TaskName:  "task05",
+				Comment:   "task05 run",
+				ParentId:  nil,
+				TopicName: "test1",
+			},
+			{
 				ID:        "02",
 				TaskName:  "task02",
 				Comment:   "task02 run",
 				ParentId:  []string{"01"},
-				TopicName: "test2",
+				TopicName: "test1",
 			},
 			{
 				ID:        "03",
 				TaskName:  "task03",
 				Comment:   "task03 run",
 				ParentId:  []string{"01"},
-				TopicName: "test3",
+				TopicName: "test1",
 			},
 			{
 				ID:        "04",
 				TaskName:  "task04",
 				Comment:   "task04 run",
 				ParentId:  []string{"01", "02"},
-				TopicName: "test4",
+				TopicName: "test1",
 			},
 		},
 	}
@@ -93,6 +100,13 @@ func Test_makeGraphResSync(t *testing.T) {
 				TopicName: "test1",
 			},
 			{
+				ID:        "05",
+				TaskName:  "task05",
+				Comment:   "task05 run",
+				ParentId:  nil,
+				TopicName: "test1",
+			},
+			{
 				ID:        "02",
 				TaskName:  "task02",
 				Comment:   "task02 run",
@@ -117,10 +131,6 @@ func Test_makeGraphResSync(t *testing.T) {
 	}
 
 	s, err := makeGraphResSync(topic)
-	// s := <-ResChan
-	// if s.Error != nil {
-	// 	t.Error(s.Error)
-	// }
 	if err != nil {
 		t.Log("err ----------->", err.Error())
 	}

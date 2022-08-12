@@ -54,6 +54,10 @@ func makeGraphResAsync(topic Topic) {
 		graph := GraphNew()
 		var err error
 		for _, t := range topic.Tasks {
+			if t.ParentId == nil {
+				graph.addNilParents(t.ID)
+				continue
+			}
 			for _, parent := range t.ParentId {
 				err = graph.DependOn(t.ID, parent)
 				if err != nil {
@@ -77,6 +81,10 @@ func makeGraphResSync(topic Topic) ([][]string, error) {
 	graph := GraphNew()
 	var err error
 	for _, t := range topic.Tasks {
+		if t.ParentId == nil {
+			graph.addNilParents(t.ID)
+			continue
+		}
 		for _, parent := range t.ParentId {
 			err = graph.DependOn(t.ID, parent)
 			if err != nil {
