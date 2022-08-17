@@ -11,10 +11,14 @@ require (
 	gorm.io/gorm v1.23.8
 )
 
-require github.com/bwmarrin/snowflake v0.3.0
+require (
+	github.com/bwmarrin/snowflake v0.3.0
+	github.com/coocood/freecache v1.2.2
+)
+
+require github.com/cespare/xxhash/v2 v2.1.2 // indirect
 
 require (
-	github.com/allegro/bigcache/v3 v3.0.2
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect

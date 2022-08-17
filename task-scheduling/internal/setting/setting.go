@@ -3,7 +3,6 @@ package setting
 import (
 	"time"
 
-	"github.com/allegro/bigcache/v3"
 	"github.com/congziqi77/task-scheduling/internal/modules/logger"
 	"github.com/spf13/viper"
 )
@@ -32,8 +31,6 @@ type ServerSettingS struct {
 	WriteTimeout time.Duration
 }
 
-type CacheSetting bigcache.Config
-
 func NewSetting() (*Setting, error) {
 	vp := viper.New()
 	vp.AddConfigPath("configs/")
@@ -41,7 +38,6 @@ func NewSetting() (*Setting, error) {
 	vp.SetConfigType("yaml")
 	err := vp.ReadInConfig()
 	if err != nil {
-		logger.Error().Str("err", err.Error()).Msg("read config error:{}")
 		return nil, err
 	}
 	return &Setting{V: vp}, nil
@@ -51,7 +47,6 @@ func NewSetting() (*Setting, error) {
 func (s *Setting) ReadSection(k string, v interface{}) error {
 	err := s.V.UnmarshalKey(k, v)
 	if err != nil {
-		logger.Error().Str("err", err.Error()).Msg("json err")
 		return err
 	}
 	return nil

@@ -18,6 +18,8 @@ func NewRouter() *gin.Engine {
 	{
 		apiV2.POST("/create", task.TopicCreate)
 		apiV2.GET("/list", task.TopicList)
+		apiV2.GET("/getTopo", task.GetTopo)
+		apiV2.GET("/run",task.Run)
 	}
 	apiV3 := r.Group("/task")
 	{

@@ -21,7 +21,7 @@ func init() {
 		logger.Error().Str("err", err.Error()).Msg("init set error : %v")
 		panic(err)
 	}
-	err = cache.CacheInit()
+	cache.CacheInit()
 	if err != nil {
 		logger.Error().Str("err", err.Error()).Msg("init cache error : %v")
 		panic(err)
@@ -49,15 +49,10 @@ func setupSetting() error {
 	}
 	err = set.ReadSection("server", &global.ServerSetting)
 	if err != nil {
-		logger.Debug().Str("err", err.Error()).Msg("read yaml error")
 		return err
 	}
 	global.ServerSetting.ReadTimeout *= time.Second
 	global.ServerSetting.WriteTimeout *= time.Second
-	err = set.ReadSection("cache", &global.CacheSetting)
-	if err != nil {
-		logger.Error().Str("err", err.Error()).Msg("read yaml error :")
-		return err
-	}
+
 	return nil
 }

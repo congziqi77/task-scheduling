@@ -1,24 +1,15 @@
 package cache
 
 import (
-	"time"
+	"runtime/debug"
 
-	"github.com/allegro/bigcache/v3"
 	"github.com/congziqi77/task-scheduling/global"
+	"github.com/coocood/freecache"
 )
 
-func CacheInit() error {
-	config := global.CacheSetting
-	var cache *bigcache.BigCache
-	var err error
-	if config == nil {
-		cache, err = bigcache.NewBigCache(bigcache.DefaultConfig(1 * time.Hour))
-	} else {
-		cache, err = bigcache.NewBigCache(bigcache.Config(*config))
-	}
-	if err != nil {
-		return err
-	}
-	global.BigCache = cache
-	return nil
+func CacheInit() {
+	cacheSize := 100 * 1024 * 1024
+	debug.SetGCPercent(20)
+	cache := freecache.NewCache(cacheSize)
+	global.FreeCache = *cache
 }
