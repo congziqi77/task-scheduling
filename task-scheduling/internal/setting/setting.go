@@ -3,7 +3,6 @@ package setting
 import (
 	"time"
 
-	"github.com/congziqi77/task-scheduling/internal/modules/logger"
 	"github.com/spf13/viper"
 )
 
