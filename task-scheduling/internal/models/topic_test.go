@@ -9,23 +9,15 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 )
 
-var mockCache *mock.MockICache
-
-func init() {
-	ctl := gomock.NewController(&testing.T{})
-	defer ctl.Finish()
-	//通过生成的源文件mock出一个接口的实现类
-	mockCache = mock.NewMockICache(ctl)
-	//将mock接口赋值给全局变量
-	CacheImp = mockCache
-}
-
 /*
 *
 goMock进行mock单元测试 配合convey
 */
 func TestTopic_SaveTopic2Cache(t *testing.T) {
-
+	ctl := gomock.NewController(t)
+	defer ctl.Finish()
+	//通过生成的源文件mock出一个接口的实现类
+	mockCache := mock.NewMockICache(ctl)
 	tests := []struct {
 		name    string
 		wantErr bool
@@ -47,13 +39,15 @@ func TestTopic_SaveTopic2Cache(t *testing.T) {
 
 	b := []byte(`{"test:1559820807885033472":{"id":"1559820807885033472","topic_name":"test","desc":"传输测试","type":0,"tasks":null}}`)
 	gomock.InOrder(
-		mockCache.EXPECT().GetCache(gomock.Any()).Return(b, nil).Times(1),
-		mockCache.EXPECT().SetCache(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil).Times(1),
+		mockCache.EXPECT().GetCache(gomock.Any()).Return(b, nil),
+		mockCache.EXPECT().SetCache(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil),
 		mockCache.EXPECT().GetCache(gomock.Any()).Return(b, errors.New("Get Error")).Times(1),
-		mockCache.EXPECT().SetCache(gomock.Any(), gomock.Any(), gomock.Any()).Return(errors.New("Set Error")).Times(1),
-		mockCache.EXPECT().GetCache(gomock.Any()).Return(b, nil).Times(1),
-		mockCache.EXPECT().SetCache(gomock.Any(), gomock.Any(), gomock.Any()).Return(errors.New("Set Error")).Times(1),
+		mockCache.EXPECT().SetCache(gomock.Any(), gomock.Any(), gomock.Any()).Return(errors.New("Set Error")),
+		mockCache.EXPECT().GetCache(gomock.Any()).Return(b, nil),
+		mockCache.EXPECT().SetCache(gomock.Any(), gomock.Any(), gomock.Any()).Return(errors.New("Set Error")),
 	)
+	//将mock接口赋值给全局变量
+	CacheImp = mockCache
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
@@ -62,9 +56,14 @@ func TestTopic_SaveTopic2Cache(t *testing.T) {
 			}
 		})
 	}
+
 }
 
 func TestGetTopicTopo(t *testing.T) {
+	ctl := gomock.NewController(t)
+	defer ctl.Finish()
+	//通过生成的源文件mock出一个接口的实现类
+	mockCache := mock.NewMockICache(ctl)
 	b := []byte(`{
 		"test:1":{
 			"id":"1",
@@ -117,6 +116,8 @@ func TestGetTopicTopo(t *testing.T) {
 		mockCache.EXPECT().GetCache(gomock.Any()).Return(b, nil),
 		mockCache.EXPECT().SetCache(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil),
 	)
+	//将mock接口赋值给全局变量
+	CacheImp = mockCache
 	Convey("get topo sync", t, func() {
 		s, err := GetTopicTopo("test", "1")
 		So(s, ShouldResemble, [][]string{{"A"}, {"B"}, {"C", "D"}})

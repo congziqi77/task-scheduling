@@ -16,7 +16,6 @@ import (
 func init() {
 	//初始化log
 	logger.LogInit(true)
-
 	if err := setupSetting(); err != nil {
 		logger.Error().Str("err", err.Error()).Msg("init set error : %v")
 		panic(err)
@@ -42,15 +41,10 @@ func setupSetting() error {
 	if err != nil {
 		return err
 	}
-
 	if err = set.ReadSection("server", &global.ServerSetting); err != nil {
 		return err
 	}
 	global.ServerSetting.ReadTimeout *= time.Second
 	global.ServerSetting.WriteTimeout *= time.Second
-
-	if err = set.ReadSection("database", &global.DbSetting); err != nil {
-		return nil
-	}
 	return nil
 }

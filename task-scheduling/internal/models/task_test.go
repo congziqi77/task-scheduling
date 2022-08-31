@@ -83,6 +83,12 @@ var _ = BeforeSuite(func() {
 		mockCache.EXPECT().SetCache(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil),
 	)
 	CacheImp = mockCache
+	set, err := setting.NewSetting()
+	Ω(err).ShouldNot(HaveOccurred())
+	if err = set.ReadSection("database", &global.DbSetting); err != nil {
+		Ω(err).ShouldNot(HaveOccurred())
+	}
+	DB, _ = NewDBImp()
 })
 
 var _ = AfterSuite(func() {
@@ -100,22 +106,22 @@ var _ = Describe("Task", Ordered, func() {
 			[]Task{
 				{
 					TaskName:   "A",
-					Comment:    "testA",
+					Comment:    "select * from task_a;",
 					ParentName: []string{},
 				},
 				{
 					TaskName:   "B",
-					Comment:    "testB",
+					Comment:    "select * from task_a;",
 					ParentName: []string{"A"},
 				},
 				{
 					TaskName:   "C",
-					Comment:    "testC",
+					Comment:    "select * from task_a;",
 					ParentName: []string{"B"},
 				},
 				{
 					TaskName:   "D",
-					Comment:    "testD",
+					Comment:    "select * from task_a;",
 					ParentName: []string{"B"},
 				},
 			},
@@ -151,6 +157,7 @@ var _ = Describe("Task", Ordered, func() {
 					TopicID:   "1",
 					TopicName: "test",
 				}
+				log.Println("gTrue.Graphs is", gTrue.Graphs)
 				Ω(MakeGraphResSync(topic)).Should(Equal(gTrue))
 			})
 		})
@@ -164,8 +171,8 @@ var _ = Describe("Task", Ordered, func() {
 				err = set.ReadSection("database", &global.DbSetting)
 				Ω(err).ShouldNot(HaveOccurred())
 				isBool, err := TaskRun([][]string{{"A"}, {"B"}, {"C", "D"}}, "test", "1")
-				Ω(isBool).Should(BeTrue())
 				Ω(err).ShouldNot(HaveOccurred())
+				Ω(isBool).Should(BeTrue())
 			})
 		})
 	})

@@ -76,6 +76,3 @@ func (db DBImp) Exec(sql string) error {
 	return db.DB.Exec(sql).Error
 }
 
-// func (db DBImp) insert(model interface{}, args ...string) {
-// 	db.DB.Create()
-// }
