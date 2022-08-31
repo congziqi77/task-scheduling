@@ -1,126 +1,125 @@
 package models
 
 import (
-	"reflect"
+	"errors"
 	"testing"
+
+	"github.com/congziqi77/task-scheduling/internal/mock"
+	"github.com/golang/mock/gomock"
+	. "github.com/smartystreets/goconvey/convey"
 )
 
+var mockCache *mock.MockICache
+
+func init() {
+	ctl := gomock.NewController(&testing.T{})
+	defer ctl.Finish()
+	//通过生成的源文件mock出一个接口的实现类
+	mockCache = mock.NewMockICache(ctl)
+	//将mock接口赋值给全局变量
+	CacheImp = mockCache
+}
+
+/*
+*
+goMock进行mock单元测试 配合convey
+*/
 func TestTopic_SaveTopic2Cache(t *testing.T) {
-	type fields struct {
-		ID        string
-		TopicName string
-		Desc      string
-		Type      int
-		Tasks     []Task
-	}
+
 	tests := []struct {
 		name    string
-		fields  fields
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			name:    "noError",
+			wantErr: false,
+		},
+		{
+			name:    "hasError",
+			wantErr: true,
+		},
 	}
+	topic := Topic{
+		TopicName: "mockTest",
+		Desc:      "mock test",
+		Type:      0,
+	}
+
+	b := []byte(`{"test:1559820807885033472":{"id":"1559820807885033472","topic_name":"test","desc":"传输测试","type":0,"tasks":null}}`)
+	gomock.InOrder(
+		mockCache.EXPECT().GetCache(gomock.Any()).Return(b, nil).Times(1),
+		mockCache.EXPECT().SetCache(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil).Times(1),
+		mockCache.EXPECT().GetCache(gomock.Any()).Return(b, errors.New("Get Error")).Times(1),
+		mockCache.EXPECT().SetCache(gomock.Any(), gomock.Any(), gomock.Any()).Return(errors.New("Set Error")).Times(1),
+		mockCache.EXPECT().GetCache(gomock.Any()).Return(b, nil).Times(1),
+		mockCache.EXPECT().SetCache(gomock.Any(), gomock.Any(), gomock.Any()).Return(errors.New("Set Error")).Times(1),
+	)
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			topic := &Topic{
-				ID:        tt.fields.ID,
-				TopicName: tt.fields.TopicName,
-				Desc:      tt.fields.Desc,
-				Type:      tt.fields.Type,
-				Tasks:     tt.fields.Tasks,
-			}
 			if err := topic.SaveTopic2Cache(); (err != nil) != tt.wantErr {
-				t.Errorf("Topic.SaveTopic2Cache() error = %v, wantErr %v", err, tt.wantErr)
-			}
-		})
-	}
-}
-
-func Test_delTopicFromCache(t *testing.T) {
-	type args struct {
-		key string
-	}
-	tests := []struct {
-		name    string
-		args    args
-		wantErr bool
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if err := delTopicFromCache(tt.args.key); (err != nil) != tt.wantErr {
-				t.Errorf("delTopicFromCache() error = %v, wantErr %v", err, tt.wantErr)
-			}
-		})
-	}
-}
-
-func TestGetTopicMapFromCache(t *testing.T) {
-	tests := []struct {
-		name    string
-		want    map[string]Topic
-		wantErr bool
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := GetTopicMapFromCache()
-			if (err != nil) != tt.wantErr {
-				t.Errorf("GetTopicMapFromCache() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("GetTopicMapFromCache() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func TestSetTopicMapToCache(t *testing.T) {
-	type args struct {
-		maps map[string]Topic
-	}
-	tests := []struct {
-		name    string
-		args    args
-		wantErr bool
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if err := SetTopicMapToCache(tt.args.maps); (err != nil) != tt.wantErr {
-				t.Errorf("SetTopicMapToCache() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("test is Error:%v", err.Error())
 			}
 		})
 	}
 }
 
 func TestGetTopicTopo(t *testing.T) {
-	type args struct {
-		topicName string
-		topicID   string
-	}
-	tests := []struct {
-		name    string
-		args    args
-		want    [][]string
-		wantErr bool
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := GetTopicTopo(tt.args.topicName, tt.args.topicID)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("GetTopicTopo() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("GetTopicTopo() = %v, want %v", got, tt.want)
-			}
-		})
-	}
+	b := []byte(`{
+		"test:1":{
+			"id":"1",
+			"topic_name":"test",
+			"desc":"传输测试",
+			"type":0,
+			"tasks":[
+				{
+					"id":"1",
+					"task_name":"A",
+					"comment":"test A",
+					"parent_name":[
+	
+					],
+					"topic_name":"test"
+				},
+				{
+					"id":"2",
+					"task_name":"B",
+					"comment":"test B",
+					"parent_name":[
+						"A"
+					],
+					"topic_name":"test"
+				},
+				{
+					"id":"3",
+					"task_name":"C",
+					"comment":"test C",
+					"parent_name":[
+						"A",
+						"B"
+					],
+					"topic_name":"test"
+				},
+				{
+					"id":"4",
+					"task_name":"D",
+					"comment":"test D",
+					"parent_name":[
+						"B"
+					],
+					"topic_name":"test"
+				}
+			]
+		}
+	}`)
+	gomock.InOrder(
+		mockCache.EXPECT().GetCache(gomock.Any()).Return(nil, nil),
+		mockCache.EXPECT().GetCache(gomock.Any()).Return(b, nil),
+		mockCache.EXPECT().SetCache(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil),
+	)
+	Convey("get topo sync", t, func() {
+		s, err := GetTopicTopo("test", "1")
+		So(s, ShouldResemble, [][]string{{"A"}, {"B"}, {"C", "D"}})
+		So(err, ShouldBeEmpty)
+	})
 }

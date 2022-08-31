@@ -2,7 +2,6 @@ package global
 
 import (
 	"github.com/congziqi77/task-scheduling/internal/setting"
-	"github.com/coocood/freecache"
 	"gorm.io/gorm"
 )
 
@@ -12,8 +11,7 @@ var (
 )
 
 var (
-	FreeCache freecache.Cache
-	DB        *gorm.DB
+	DB *gorm.DB
 )
 
 const (

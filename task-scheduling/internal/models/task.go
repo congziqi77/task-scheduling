@@ -3,7 +3,7 @@ package models
 import (
 	"encoding/json"
 	"errors"
-	"log"
+	"strings"
 	"sync"
 
 	"github.com/congziqi77/task-scheduling/global"
@@ -19,25 +19,25 @@ type Tasks struct {
 
 type GraphResult struct {
 	Error     error      `json:"error"`
-	Graphres  [][]string `json:"graphres"`
+	Graphs    [][]string `json:"graphs"`
 	TopicID   string     `json:"topic_id"`
 	TopicName string     `json:"topic_name"`
 }
 
-//任务
+// 任务
 type Task struct {
-	ID        string   `json:"id"`
-	TaskName  string   `json:"task_name"`
-	Comment   string   `json:"comment"`
-	ParentId  []string `json:"parent_id"` //依赖任务id
-	TopicName string   `json:"topic_name"`
+	ID         string   `json:"id"`
+	TaskName   string   `json:"task_name"`
+	Comment    string   `json:"comment"`
+	ParentName []string `json:"parent_name"` //依赖任务id
+	TopicName  string   `json:"topic_name"`
+	Desc       string   `json:"desc"`
 }
 
-//将新建的taskServer存入缓存当中
+// 将新建的taskServer存入缓存当中
 func (tasks *Tasks) TaskCreateServer(topicName, topicID string) error {
 	for i := range tasks.TaskList {
 		tasks.TaskList[i].ID = pkg.GetID()
-		log.Printf("id:%v", tasks.TaskList[i].ID)
 		tasks.TaskList[i].TopicName = topicName
 	}
 	maps, err := GetTopicMapFromCache()
@@ -59,22 +59,22 @@ func (tasks *Tasks) TaskCreateServer(topicName, topicID string) error {
 	return nil
 }
 
-//异步获取
+// 异步获取
 func makeGraphResAsync(topic Topic) {
 	go func(Topic) {
 		graph := GraphNew()
 		var err error
 		for _, t := range topic.Tasks {
-			if t.ParentId == nil {
-				graph.addNilParents(t.ID)
+			if len(t.ParentName) == 0 || t.ParentName == nil {
+				graph.addNilParents(t.TaskName)
 				continue
 			}
-			for _, parent := range t.ParentId {
-				err = graph.DependOn(t.ID, parent)
+			for _, parent := range t.ParentName {
+				err = graph.DependOn(t.TaskName, parent)
 				if err != nil {
 					ResChan <- GraphResult{
 						Error:     err,
-						Graphres:  nil,
+						Graphs:    nil,
 						TopicID:   topic.ID,
 						TopicName: topic.TopicName,
 					}
@@ -85,35 +85,35 @@ func makeGraphResAsync(topic Topic) {
 		taskExecuteSequence := graph.TopoSortedLayers()
 		ResChan <- GraphResult{
 			Error:     nil,
-			Graphres:  taskExecuteSequence,
+			Graphs:    taskExecuteSequence,
 			TopicID:   topic.ID,
 			TopicName: topic.TopicName,
 		}
 	}(topic)
 
 	//启动获取ResChan 判断是否启动
-	b, _ := global.FreeCache.Get([]byte(global.ISStartGetFromResChan))
+	b, _ := CacheImp.GetCache([]byte(global.ISStartGetFromResChan))
 	if b == nil {
 		go GetTaskTopo()
-		global.FreeCache.Set([]byte(global.ISStartGetFromResChan), []byte("true"), -1)
+		CacheImp.SetCache([]byte(global.ISStartGetFromResChan), []byte("true"), -1)
 	}
 }
 
-//同步获取
+// 同步获取
 func MakeGraphResSync(topic Topic) GraphResult {
 	graph := GraphNew()
 	var err error
 	for _, t := range topic.Tasks {
-		if t.ParentId == nil {
-			graph.addNilParents(t.ID)
+		if len(t.ParentName) == 0 || t.ParentName == nil {
+			graph.addNilParents(t.TaskName)
 			continue
 		}
-		for _, parent := range t.ParentId {
-			err = graph.DependOn(t.ID, parent)
+		for _, parent := range t.ParentName {
+			err = graph.DependOn(t.TaskName, parent)
 			if err != nil {
 				return GraphResult{
 					Error:     err,
-					Graphres:  nil,
+					Graphs:    nil,
 					TopicID:   topic.ID,
 					TopicName: topic.TopicName,
 				}
@@ -123,19 +123,19 @@ func MakeGraphResSync(topic Topic) GraphResult {
 	taskExecuteSequence := graph.TopoSortedLayers()
 	return GraphResult{
 		Error:     nil,
-		Graphres:  taskExecuteSequence,
+		Graphs:    taskExecuteSequence,
 		TopicID:   topic.ID,
 		TopicName: topic.TopicName,
 	}
 }
 
-//循环获取TaskTopo
+// 循环获取TaskTopo
 func GetTaskTopo() {
 	for {
 		taskTopo := <-ResChan
 		logger.Debug().Interface("taskTopo:%v", taskTopo).Msg("")
 		if taskTopo.Error != nil {
-			logger.Error().Str("get tasktopo topicName: ", taskTopo.TopicName).
+			logger.Error().Str("get task topo topicName: ", taskTopo.TopicName).
 				Str("err:", taskTopo.Error.Error()).Msg("")
 		} else {
 			key := taskTopo.TopicID + global.TopicTopoSuffix
@@ -144,13 +144,14 @@ func GetTaskTopo() {
 				logger.Error().Str("topic topo to json error", err.Error()).Msg("to json")
 				continue
 			}
-			global.FreeCache.Set([]byte(key), taskTopoJson, -1)
+
+			CacheImp.SetCache([]byte(key), taskTopoJson, -1)
 		}
 	}
 }
 
 func TaskRun(graphTopo [][]string, topicName, topicID string) (bool, error) {
-	b, err := global.FreeCache.Get([]byte(TopicKey))
+	b, err := CacheImp.GetCache([]byte(TopicKey))
 	if err != nil {
 		return false, err
 	}
@@ -171,14 +172,10 @@ func TaskRun(graphTopo [][]string, topicName, topicID string) (bool, error) {
 	return res, err
 }
 
-//执行task sql
+// 执行task sql
 func taskRunFromSql(topic Topic, graphTopo [][]string) (bool, error) {
-	var err error
-	if global.DB == nil {
-		global.DB, err = NewDBEngine()
-		if err != nil {
-			return false, err
-		}
+	if DB == nil {
+		return false, errors.New("DB is not init")
 	}
 	for _, s := range graphTopo {
 		tierLen := len(s)
@@ -189,16 +186,19 @@ func taskRunFromSql(topic Topic, graphTopo [][]string) (bool, error) {
 		}
 		wg.Wait()
 	}
+	delTopicFromCache(MakeTopicKey(topic.TopicName, topic.ID))
 	return true, nil
+
 }
 
-//执行task shell
+// 执行task shell
 func taskRunFromShell(topic Topic, graphTopo [][]string) (bool, error) {
 	return false, nil
 }
 
+// 查询执行的sql语句
 func queryExecuteStatement(taskID string, topic Topic) (string, error) {
-	b, err := global.FreeCache.Get([]byte(topic.TopicName + taskID))
+	b, err := CacheImp.GetCache([]byte(topic.TopicName + taskID))
 	if err != nil {
 		return "", err
 	}
@@ -207,7 +207,7 @@ func queryExecuteStatement(taskID string, topic Topic) (string, error) {
 		if err != nil {
 			return "", nil
 		}
-		b, err = global.FreeCache.Get([]byte(topic.TopicName + taskID))
+		b, err = CacheImp.GetCache([]byte(topic.TopicName + taskID))
 		if err != nil {
 			return "", err
 		}
@@ -218,6 +218,7 @@ func queryExecuteStatement(taskID string, topic Topic) (string, error) {
 	return task.Comment, nil
 }
 
+//执行task中sql
 func executeSQL(taskID string, wg *sync.WaitGroup, topic Topic) {
 	defer func() {
 		if e := recover(); e != nil {
@@ -225,20 +226,27 @@ func executeSQL(taskID string, wg *sync.WaitGroup, topic Topic) {
 		}
 	}()
 	defer wg.Done()
-	commit, err := queryExecuteStatement(taskID, topic)
+	comment, err := queryExecuteStatement(taskID, topic)
 	if err != nil {
 		panic(err)
 	}
-	if commit == "" {
+	if comment == "" {
+		logger.Warn().Str("", "").Msg("task comment is nil")
 		return
 	}
-	if err = global.DB.Exec(commit).Error; err != nil {
-		panic(err)
+	//通过；分割sql进行执行
+	comments := strings.Split(comment, ";")
+	for _, sqlComment := range comments {
+		sqlComment = strings.TrimSpace(sqlComment)
+		//手动保证并行执行task不操作同一个表
+		if err = global.DB.Exec(sqlComment).Error; err != nil {
+			panic(err)
+		}
 	}
 }
 
 func setTopic2Cache(taskID string, topic Topic) error {
-	b, err := global.FreeCache.Get([]byte(TopicKey))
+	b, err := CacheImp.GetCache([]byte(TopicKey))
 	if err != nil {
 		return err
 	}
@@ -250,7 +258,7 @@ func setTopic2Cache(taskID string, topic Topic) error {
 		if err != nil {
 			return err
 		}
-		err = global.FreeCache.Set([]byte(topic.TopicName+task.ID), b, -1)
+		err = CacheImp.SetCache([]byte(topic.TopicName+task.ID), b, -1)
 		if err != nil {
 			return err
 		}

@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-//创建task
+// 创建task
 func TaskCreate(ctx *gin.Context) {
 	tasks := new(models.Tasks)
 	if err := ctx.ShouldBindJSON(tasks); err != nil {
@@ -17,8 +17,8 @@ func TaskCreate(ctx *gin.Context) {
 	}
 	topicID := ctx.Query("topicID")
 	topicName := ctx.Query("topicName")
-	err := tasks.TaskCreateServer(topicName, topicID)
-	if err != nil {
+
+	if err := tasks.TaskCreateServer(topicName, topicID); err != nil {
 		logger.Error().Str("err", err.Error()).Msg("")
 		req.Error(ctx, err.Error())
 		return

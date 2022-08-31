@@ -2,6 +2,7 @@ package models
 
 import (
 	"encoding/json"
+	"errors"
 
 	"github.com/congziqi77/task-scheduling/global"
 	"github.com/congziqi77/task-scheduling/internal/modules/logger"
@@ -20,35 +21,34 @@ const (
 	TopicKey = "topicList"
 )
 
-//保存topic到cache中
+// 保存topic到cache中
 func (topic *Topic) SaveTopic2Cache() error {
 	topic.ID = pkg.GetID()
 	mapTopic, err := GetTopicMapFromCache()
 	if err != nil {
+		logger.Debug().Str("get cache error", err.Error()).Msg("")
 		return err
 	}
 	mapTopic[MakeTopicKey(topic.TopicName, topic.ID)] = *topic
-	err = SetTopicMapToCache(mapTopic)
-	if err != nil {
 
+	if err = SetTopicMapToCache(mapTopic); err != nil {
+		logger.Debug().Str("set cache error", err.Error()).Msg("")
 		return err
 	}
 	return nil
 }
 
-//任务执行完删除对应topic
 func delTopicFromCache(key string) error {
-	b, _ := global.FreeCache.Get([]byte(TopicKey))
+	b, _ := CacheImp.GetCache([]byte(TopicKey))
 	if b == nil {
 		return nil
 	}
 	mapTopic := make(map[string]Topic)
-	err := json.Unmarshal(b, &mapTopic)
-	if err != nil {
+	if err := json.Unmarshal(b, &mapTopic); err != nil {
 		return err
 	}
 	delete(mapTopic, key)
-	err = SetTopicMapToCache(mapTopic)
+	err := SetTopicMapToCache(mapTopic)
 	if err != nil {
 		return err
 	}
@@ -56,11 +56,13 @@ func delTopicFromCache(key string) error {
 }
 
 func GetTopicMapFromCache() (map[string]Topic, error) {
-	b, _ := global.FreeCache.Get([]byte(TopicKey))
 	mapTopic := make(map[string]Topic)
+	b, _ := CacheImp.GetCache([]byte(TopicKey))
+	if b == nil {
+		return mapTopic, nil
+	}
 	if b != nil {
-		err := json.Unmarshal(b, &mapTopic)
-		if err != nil {
+		if err := json.Unmarshal(b, &mapTopic); err != nil {
 			return nil, err
 		}
 	}
@@ -72,52 +74,59 @@ func SetTopicMapToCache(maps map[string]Topic) error {
 	if err != nil {
 		return err
 	}
-	err = global.FreeCache.Set([]byte(TopicKey), b, -1)
-	if err != nil {
-		return err
+	err2 := CacheImp.SetCache([]byte(TopicKey), b, -1)
+	if err2 != nil {
+		return err2
 	}
 	return nil
 }
 
 func GetTopicTopo(topicName, topicID string) ([][]string, error) {
-	b, err := global.FreeCache.Get([]byte(topicID + global.TopicTopoSuffix))
-	if err != nil {
-		return nil, err
-	}
+	b, _ := CacheImp.GetCache([]byte(topicID + global.TopicTopoSuffix))
 	var graphRes GraphResult
-	//如果异步没有获取到数据那么就从同步中获取
+	//如果异步没有获取到数据或发生错误那么就从同步中获取
 	if b == nil {
-		logger.Warn().Msg("warn: get topic topo by sync")
+		logger.Print("warn: get topic topo by sync")
 		topicMap := make(map[string]Topic)
+		b, err := CacheImp.GetCache([]byte(TopicKey))
+		if err != nil {
+			return nil, err
+		}
 		json.Unmarshal(b, &topicMap)
 		topic := topicMap[MakeTopicKey(topicName, topicID)]
 		graphRes = MakeGraphResSync(topic)
 		if graphRes.Error != nil {
 			return nil, err
 		}
-		b, err := json.Marshal(graphRes)
+		b, err = json.Marshal(graphRes)
 		if err != nil {
 			return nil, err
 		}
-		global.FreeCache.Set([]byte(topicID+global.TopicTopoSuffix), b, -1)
-		return graphRes.Graphres, graphRes.Error
+		CacheImp.SetCache([]byte(topicID+global.TopicTopoSuffix), b, -1)
+		return graphRes.Graphs, graphRes.Error
 	}
-
 	json.Unmarshal(b, &graphRes)
-	return graphRes.Graphres, graphRes.Error
+	//如果异步数据发生异常返回空集合
+	if graphRes.Error != nil {
+		return nil, graphRes.Error
+	}
+	return graphRes.Graphs, nil
 }
 
 func Run(topicName, topicID string) (bool, error) {
-	b, err := global.FreeCache.Get([]byte(topicID + global.TopicTopoSuffix))
+	b, err := CacheImp.GetCache([]byte(topicID + global.TopicTopoSuffix))
 	if err != nil {
 		return false, err
 	}
 	var graphRes GraphResult
 	err = json.Unmarshal(b, &graphRes)
+	if graphRes.Graphs == nil || len(graphRes.Graphs) == 0 {
+		return false, errors.New("no graphs")
+	}
 	if err != nil {
 		return false, err
 	}
-	result, err := TaskRun(graphRes.Graphres, topicName, topicID)
+	result, err := TaskRun(graphRes.Graphs, topicName, topicID)
 	return result, err
 }
 

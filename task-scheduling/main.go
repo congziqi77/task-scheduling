@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/congziqi77/task-scheduling/global"
-	"github.com/congziqi77/task-scheduling/internal/modules/cache"
+	"github.com/congziqi77/task-scheduling/internal/models"
 	"github.com/congziqi77/task-scheduling/internal/modules/logger"
 	"github.com/congziqi77/task-scheduling/internal/routers"
 	"github.com/congziqi77/task-scheduling/internal/setting"
@@ -15,21 +15,16 @@ import (
 
 func init() {
 	//初始化log
-	logger.Loginit(true)
-	err := setupSetting()
-	if err != nil {
+	logger.LogInit(true)
+
+	if err := setupSetting(); err != nil {
 		logger.Error().Str("err", err.Error()).Msg("init set error : %v")
 		panic(err)
 	}
-	cache.CacheInit()
-	if err != nil {
-		logger.Error().Str("err", err.Error()).Msg("init cache error : %v")
-		panic(err)
-	}
+	models.CacheImp = models.NewCache()
 }
 
 func main() {
-
 	gin.SetMode(global.ServerSetting.RunMode)
 	router := routers.NewRouter()
 	s := &http.Server{
@@ -47,12 +42,15 @@ func setupSetting() error {
 	if err != nil {
 		return err
 	}
-	err = set.ReadSection("server", &global.ServerSetting)
-	if err != nil {
+
+	if err = set.ReadSection("server", &global.ServerSetting); err != nil {
 		return err
 	}
 	global.ServerSetting.ReadTimeout *= time.Second
 	global.ServerSetting.WriteTimeout *= time.Second
 
+	if err = set.ReadSection("database", &global.DbSetting); err != nil {
+		return nil
+	}
 	return nil
 }

@@ -68,3 +68,14 @@
 {"level":"debug","taskTopo:%v":{"error":null,"graphres":[["1559349421244682240"]],"topic_id":"1559349362172104704","topic_name":"test"},"caller":"/Users/congziqi/Documents/goWork/task-scheduling/task-scheduling/internal/models/task.go:138","time":"2022-08-16T09:20:47+08:00"}
 {"level":"debug","taskTopo:%v":{"error":null,"graphres":[["1559349785486442496"]],"topic_id":"1559349748182302720","topic_name":"test"},"caller":"/Users/congziqi/Documents/goWork/task-scheduling/task-scheduling/internal/models/task.go:138","time":"2022-08-16T09:22:14+08:00"}
 {"level":"debug","taskTopo:%v":{"error":null,"graphres":[["1559356116666683392","1559356116649906176","1559356116654100480","1559356116662489088"]],"topic_id":"1559356078787923968","topic_name":"test"},"caller":"/Users/congziqi/Documents/goWork/task-scheduling/task-scheduling/internal/models/task.go:138","time":"2022-08-16T09:47:24+08:00"}
+[90m6:16PM[0m [33mDBG[0m [1mroute/task/topic.go:20[0m[36m >[0m [36mtopicInstant is=[0m{"desc":"传输测试","id":"","tasks":null,"topic_name":"test","type":0}
+[90m6:16PM[0m [1m[31mERR[0m[0m [1mroute/task/topic.go:23[0m[36m >[0m save topic 2 cache error [36merr=[0m"Entry not found"
+[90m6:27PM[0m [33mDBG[0m [1minternal/models/topic.go:29[0m[36m >[0m [36mget cache error=[0m"Entry not found"
+[90m6:27PM[0m [1m[31mERR[0m[0m [1mroute/task/topic.go:22[0m[36m >[0m save topic 2 cache error [36merr=[0m"Entry not found"
+[90m10:11PM[0m [33mDBG[0m [1minternal/models/cache.go:38[0m[36m >[0m [36mcache is=[0m{"Cache":{}}
+[90m10:11PM[0m [33mDBG[0m [1minternal/models/topic.go:29[0m[36m >[0m [36mget cache error=[0m"Entry not found"
+[90m10:11PM[0m [1m[31mERR[0m[0m [1mroute/task/topic.go:22[0m[36m >[0m save topic 2 cache error [36merr=[0m"Entry not found"
+[90m10:13PM[0m [33mDBG[0m [1minternal/models/topic.go:29[0m[36m >[0m [36mget cache error=[0m"Entry not found"
+[90m10:13PM[0m [1m[31mERR[0m[0m [1mroute/task/topic.go:22[0m[36m >[0m save topic 2 cache error [36merr=[0m"Entry not found"
+[90m10:14PM[0m [33mDBG[0m [1minternal/models/topic.go:29[0m[36m >[0m [36mget cache error=[0m"Entry not found"
+[90m10:14PM[0m [1m[31mERR[0m[0m [1mroute/task/topic.go:22[0m[36m >[0m save topic 2 cache error [36merr=[0m"Entry not found"

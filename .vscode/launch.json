@@ -9,7 +9,13 @@
             "type": "go",
             "request": "launch",
             "mode": "auto",
-            "program": "${fileDirname}"
+            "program": "${workspaceFolder}/task-scheduling/main.go",
+            "port": 8081,
+            "host": "127.0.0.1",
+            "env": {
+                "GOPATH":"/Users/congziqi/go"
+            },
+           
         }
     ]
 }

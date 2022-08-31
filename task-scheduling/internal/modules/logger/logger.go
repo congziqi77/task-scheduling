@@ -2,6 +2,7 @@ package logger
 
 import (
 	"io"
+	"os"
 
 	"github.com/rs/zerolog"
 	"gopkg.in/natefinch/lumberjack.v2"
@@ -9,21 +10,22 @@ import (
 
 var logger zerolog.Logger
 
-func Loginit(isDebug bool) {
+func LogInit(isDebug bool) {
 	logLevel := zerolog.InfoLevel
 	if isDebug {
 		logLevel = zerolog.DebugLevel
 	}
 	zerolog.SetGlobalLevel(logLevel)
 
-	s := zerolog.New(&lumberjack.Logger{
+	consoleWriter := zerolog.ConsoleWriter{Out: &lumberjack.Logger{
 		Filename:   "./log/system.log", // File name
 		MaxSize:    100,                // Size in MB before file gets rotated
 		MaxBackups: 5,                  // Max number of files kept before being overwritten
 		MaxAge:     30,                 // Max number of days to keep the files
 		Compress:   true,               // Whether to compress log files using gzip
-	})
-	logger = s.With().Caller().Timestamp().Logger()
+	}}
+	multi := zerolog.MultiLevelWriter(consoleWriter, os.Stdout)
+	logger = zerolog.New(multi).With().Caller().Timestamp().Logger()
 }
 
 // Output duplicates the global logger and sets w as its output.
